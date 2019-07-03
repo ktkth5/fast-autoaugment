@@ -91,11 +91,14 @@ def main():
 def train(model, train_loader, val_loader, args):
     best_acc = -1
     criterion = nn.CrossEntropyLoss().to(args.device)
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
     model.train()
     for epoch in range(args.epochs):
         loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
         loss, acc = validate(model, val_loader, criterion, args)
+        print(f"Epoch[{epoch}/{args.epochs}]\t"
+              f"Train Loss: {loss_t:.4f}\tAccuracy: {acc_t:.2f}\n"
+              f"\t\t  Val Loss: {loss:.4f}\tAccuracy: {acc:.2f}")
         if acc > best_acc:
             print('Saving..')
             state = {
@@ -107,9 +110,6 @@ def train(model, train_loader, val_loader, args):
                 os.mkdir('checkpoint')
             torch.save(state, './checkpoint/ckpt.pth.tar')
             best_acc = acc
-        print(f"Epoch[{epoch}/{args.epochs}]\t"
-              f"Train Loss: {loss_t:.4f}\tAccuracy: {acc_t:.2f}\n"
-              f"\t\tVal Loss: {loss:.4f}\tAccuracy: {acc:.2f}")
     with open("./checkpoint/acc.txt", "a") as f:
         f.write(f"Best Accuracy: {best_acc:.2f}")
         f.write("\n")
