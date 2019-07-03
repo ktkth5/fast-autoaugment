@@ -32,8 +32,8 @@ def main():
     )
 
     if not args.pass_train:
-        model = wideresnet.Wide_ResNet(28, 10, 0.3, 10).to(args.device)
-        train(model, train_loader, args)
+        model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
+        train(model, train_loader, val_loader, args)
         del model
     del train_sampler, train_loader, test_loader
 
@@ -88,13 +88,14 @@ def main():
 
 
 
-def train(model, train_loader, args):
+def train(model, train_loader, val_loader, args):
     best_acc = -1
     criterion = nn.CrossEntropyLoss().to(args.device)
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     model.train()
     for epoch in range(args.epochs):
-        loss, acc = train_epoch(model, train_loader, criterion, optimizer, args)
+        loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
+        loss, acc = validate(model, val_loader, criterion, args)
         if acc > best_acc:
             print('Saving..')
             state = {
@@ -106,6 +107,12 @@ def train(model, train_loader, args):
                 os.mkdir('checkpoint')
             torch.save(state, './checkpoint/ckpt.pth.tar')
             best_acc = acc
+        print(f"Epoch[{epoch}/{args.epochs}]\t"
+              f"Train Loss: {loss_t:.4f}\tAccuracy: {acc_t:.2f}\n"
+              f"\t\tVal Loss: {loss:.4f}\tAccuracy: {acc:.2f}")
+    with open("./checkpoint/acc.txt", "a") as f:
+        f.write(f"Best Accuracy: {best_acc:.2f}")
+        f.write("\n")
     return model
 
 
@@ -127,10 +134,28 @@ def train_epoch(model, train_loader, criterion, optimizer, args):
         _, predicted = outputs.max(1)
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
-        print(f"{i}/{len(train_loader)}\t", loss.item(), correct/total)
+        # print(f"{i}/{len(train_loader)}\t", loss.item(), correct/total)
         # break
 
     return train_loss/(i+1), 100.*correct/total
+
+def validate(model, val_loader, criterion, args):
+    val_loss = 0
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for i, (inputs, targets) in enumerate(val_loader):
+            inputs = inputs.to(args.device)
+            targets = targets.to(args.device)
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+
+            val_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
+
+    return val_loss/(i+1), 100.*correct/total
 
 if __name__=="__main__":
     main()

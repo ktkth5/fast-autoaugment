@@ -108,7 +108,7 @@ def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=Fa
         testset = torchvision.datasets.CIFAR10(root=dataroot, train=False, download=True, transform=transform_test)
     elif dataset == 'reduced_cifar10':
         total_trainset = torchvision.datasets.CIFAR10(root=dataroot, train=True, download=True, transform=transform_train)
-        sss = StratifiedShuffleSplit(n_splits=1, test_size=46000, random_state=0)   # 200 trainset
+        sss = StratifiedShuffleSplit(n_splits=1, test_size=46000, random_state=0)   # 4000 trainset
         sss = sss.split(list(range(len(total_trainset))), total_trainset.targets)
         train_idx, valid_idx = next(sss)
         train_labels = [total_trainset.targets[idx] for idx in train_idx]

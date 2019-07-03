@@ -30,7 +30,7 @@ class TrainCIFAR(Trainable):
                 [config["aug2"], config["p2"], config["value2"]]]
         self.val_loader.dataset.transform.transforms.insert(0, Augmentation(augs))
 
-        self.model = wideresnet.Wide_ResNet(28, 10, 0.3, 10).to(args.device)
+        self.model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
         if args.aws:
             cp = torch.load("/home/ubuntu/Develope/fast-autoaugment/checkpoint/ckpt.pth.tar")
         else:
