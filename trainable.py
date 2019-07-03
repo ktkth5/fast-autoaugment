@@ -31,7 +31,10 @@ class TrainCIFAR(Trainable):
         self.val_loader.dataset.transform.transforms.insert(0, Augmentation(augs))
 
         self.model = wideresnet.Wide_ResNet(28, 10, 0.3, 10).to(args.device)
-        cp = torch.load("/Users/kento/Development/my_pc/fast-autoaugment/checkpoint/ckpt.pth.tar")
+        if args.aws:
+            cp = torch.load("/home/ubuntu/Develope/fast-autoaugment/checkpoint/ckpt.pth.tar")
+        else:
+            cp = torch.load("/Users/kento/Development/my_pc/fast-autoaugment/checkpoint/ckpt.pth.tar")
         self.model.load_state_dict(cp["state_dict"])
         self.criterion = nn.CrossEntropyLoss().to(args.device)
 

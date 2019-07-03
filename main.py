@@ -58,7 +58,7 @@ def main():
                 "cpu": args.cpu,
                 "gpu": args.gpu
             },
-            "num_samples": 3,
+            "num_samples": args.num_samples,
             "config": {
                 "args": args,
                 "dataloader": val_loader,
@@ -73,7 +73,7 @@ def main():
 
         algo = HyperOptSearch(
             space,
-            max_concurrent=4,
+            max_concurrent=args.max_concurrent,
             metric="mean_accuracy",
             mode="max")
         scheduler = AsyncHyperBandScheduler(time_attr="training_iteration", metric="mean_accuracy", mode="max")
@@ -81,7 +81,7 @@ def main():
                  search_alg=algo,
                  scheduler=scheduler,
                  loggers=[DEFAULT_LOGGERS, JsonLogger],
-                 verbose=0,
+                 verbose=args.verbose,
                  **config)
 
         ray.shutdown()
@@ -128,7 +128,7 @@ def train_epoch(model, train_loader, criterion, optimizer, args):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
         print(f"{i}/{len(train_loader)}\t", loss.item(), correct/total)
-        break
+        # break
 
     return train_loss/(i+1), 100.*correct/total
 

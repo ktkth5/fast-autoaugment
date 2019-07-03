@@ -1,0 +1,6 @@
+torch
+torchvision
+tensorflow
+hyperopt
+git+https://github.com/wbaek/theconf.git
+
