@@ -10,6 +10,7 @@ import os
 import yaml
 import distutils.version
 import numbers
+from copy import deepcopy
 
 import numpy as np
 
@@ -77,6 +78,9 @@ class JsonLogger(Logger):
         self.local_out = open(local_file, "a")
 
     def on_result(self, result):
+        # print("logger result", result.keys(), result["config"].keys())
+        result["config"].pop("dataloader")
+        # print("logger result", result.keys(), result["config"].keys())
         json.dump(result, self, cls=_SafeFallbackEncoder)
         self.write("\n")
         self.local_out.flush()
@@ -91,7 +95,12 @@ class JsonLogger(Logger):
         self.local_out.close()
 
     def update_config(self, config):
+        # print("logger config", self.config.keys())
         self.config = config
+        # _config = deepcopy(config)
+        # _config.pop("dataloader")
+        # print("logger config", _config.keys())
+        # self.config.pop("dataloader")
         config_out = os.path.join(self.logdir, "params.json")
         with open(config_out, "w") as f:
             json.dump(
@@ -100,9 +109,9 @@ class JsonLogger(Logger):
                 indent=2,
                 sort_keys=True,
                 cls=_SafeFallbackEncoder)
-        config_pkl = os.path.join(self.logdir, "params.pkl")
-        with open(config_pkl, "wb") as f:
-            cloudpickle.dump(self.config, f)
+        # config_pkl = os.path.join(self.logdir, "params.pkl")
+        # with open(config_pkl, "wb") as f:
+        #     cloudpickle.dump(_config, f)
 
 
 def to_tf_values(result, path):

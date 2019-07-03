@@ -80,7 +80,8 @@ def main():
         tune.run(TrainCIFAR,
                  search_alg=algo,
                  scheduler=scheduler,
-                 loggers=[DEFAULT_LOGGERS, JsonLogger],
+                 # loggers=[DEFAULT_LOGGERS, JsonLogger],
+                 loggers=[JsonLogger],
                  verbose=args.verbose,
                  **config)
 
