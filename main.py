@@ -91,7 +91,7 @@ def main():
 def train(model, train_loader, val_loader, args):
     best_acc = -1
     criterion = nn.CrossEntropyLoss().to(args.device)
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=2e-4, nesterov=True)
     model.train()
     for epoch in range(args.epochs):
         loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
