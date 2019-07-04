@@ -203,6 +203,6 @@ def apply_augment(img, name, level):
 
 
 def get_candidate_augment(T=2):
-    aug1, aug2 = random.sample(augment_list(), 2)
+    aug1, aug2 = random.sample(augment_list(for_autoaug=False), 2)
     return aug1, aug2
 
