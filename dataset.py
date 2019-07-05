@@ -33,7 +33,7 @@ _IMAGENET_PCA = {
 }
 
 
-def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=False):
+def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=False, test=None):
     if 'cifar' in dataset:
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
@@ -102,6 +102,10 @@ def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=Fa
 
     # if C.get()['cutout'] > 0:
     #     transform_train.transforms.append(CutoutDefault(C.get()['cutout']))
+
+    if test is not None:
+        if test == "reduced_cifar_repro":
+            transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_repro()))
 
     if dataset == 'cifar10':
         total_trainset = torchvision.datasets.CIFAR10(root=dataroot, train=True, download=True, transform=transform_train)
