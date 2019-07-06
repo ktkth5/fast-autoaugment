@@ -24,6 +24,10 @@ class opts(object):
         self.parser.add_argument("--gpu", default=0, type=int)
         self.parser.add_argument("--cpu", default=4, type=int)
         self.parser.add_argument("--aws", action="store_true")
+        self.parser.add_argument("--baseline", action="store_true")
+        self.parser.add_argument("--cutout", default=0, type=float)
+        self.parser.add_argument("--aug", default="default")
+        self.parser.add_argument("--log", default="default")
 
     def parse(self):
         args = self.parser.parse_args()

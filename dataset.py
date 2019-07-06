@@ -33,7 +33,7 @@ _IMAGENET_PCA = {
 }
 
 
-def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=False, test=None):
+def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=False, aug="default", cutout=0):
     if 'cifar' in dataset:
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
@@ -103,9 +103,14 @@ def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=Fa
     # if C.get()['cutout'] > 0:
     #     transform_train.transforms.append(CutoutDefault(C.get()['cutout']))
 
-    if test is not None:
-        if test == "reduced_cifar_repro":
-            transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_repro()))
+    if cutout > 0:
+        transform_train.transforms.append(CutoutDefault(cutout))
+
+    # if test is not None:
+    if aug == "reduced_cifar_repro":
+        transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_repro()))
+    elif aug == "default":
+        pass
 
     if dataset == 'cifar10':
         total_trainset = torchvision.datasets.CIFAR10(root=dataroot, train=True, download=True, transform=transform_train)
@@ -184,7 +189,8 @@ def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=Fa
             import horovod.torch as hvd
             train_sampler = DistributedStratifiedSampler(total_trainset.train_labels, num_replicas=hvd.size(), rank=hvd.rank())
         else:
-            train_sampler = StratifiedSampler(total_trainset.train_labels)
+            # train_sampler = StratifiedSampler(total_trainset.train_labels)
+            train_sampler = StratifiedSampler(list(range(len(total_trainset.targets))))
 
     trainloader = torch.utils.data.DataLoader(
         total_trainset, batch_size=batch, shuffle=True if train_sampler is None else False, num_workers=4, pin_memory=True,
@@ -218,7 +224,7 @@ class CutoutDefault(object):
         x1 = np.clip(x - self.length // 2, 0, w)
         x2 = np.clip(x + self.length // 2, 0, w)
 
-        mask[y1: y2, x1: x2] = 0.
+        mask[int(y1): int(y2), int(x1): int(x2)] = 0.
         mask = torch.from_numpy(mask)
         mask = mask.expand_as(img)
         img *= mask

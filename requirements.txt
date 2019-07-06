@@ -1,6 +1,7 @@
 torch
 torchvision
-tensorflow
 hyperopt
+sklearn
+ray[debug]
 git+https://github.com/wbaek/theconf.git
 
