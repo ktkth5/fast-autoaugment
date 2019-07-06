@@ -111,6 +111,8 @@ def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=Fa
         transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_repro()))
     elif aug == "reduced_cifar_archive":
         transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_archive()))
+    elif aug == "reduced_cifar_random":
+        transform_train.transforms.insert(0, Augmentation(random_policy()))
     elif aug == "default":
         pass
 

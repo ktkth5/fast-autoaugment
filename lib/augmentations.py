@@ -225,5 +225,19 @@ def fa_reduced_cifar_archive():
     return p
 
 
+def random_policy():
+    length = len(fa_reduced_cifar_archive())
+    p = []
+    for i in range(length):
+        aug1 = random.choice(list(augment_dict.keys()))
+        aug2 = random.choice(list(augment_dict.keys()))
+        p1 = random.uniform(0,1)
+        p2 = random.uniform(0,1)
+        v1 = random.uniform(0,1)
+        v2 = random.uniform(0,1)
+        p.append([[aug1, p1, v1], [aug2, p2, v2]])
+    return p
 
-# fa_reduced_cifar_repro()
+
+# print(len(fa_reduced_cifar_archive()))
+# print(len(random_policy()), len(random_policy()[0]))

@@ -1,0 +1,1 @@
+python3 train.py --epochs=200 --batch_size=128 --gpu=1 --lr=0.1 --aug=reduced_cifar_random --log=random
