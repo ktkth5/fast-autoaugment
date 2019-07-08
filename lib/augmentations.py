@@ -207,12 +207,12 @@ def get_candidate_augment(T=5):
 
 
 def fa_reduced_cifar_repro(K=10):
-    # with open("checkpoint/ray_results.txt", "r") as f:
-    with open("checkpoint/TrainCIFAR.txt", "r") as f:
+    with open("checkpoint/ray_results.txt", "r") as f:
+    # with open("checkpoint/TrainCIFAR.txt", "r") as f:
         results = f.readlines()
 
     augs = []
-    for r in results[:K]:
+    for r in results:
         r = r.split(",")
         aug1, aug2 = r[0], r[1]
         p1, p2 = float(r[3]), float(r[4])
