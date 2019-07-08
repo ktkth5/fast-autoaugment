@@ -11,19 +11,22 @@ class opts(object):
         self.parser.add_argument("--num_samples", default=3, type=int)
         self.parser.add_argument("--max_concurrent", default=4, type=int)
         self.parser.add_argument("--verbose", default=0, type=int)
+        self.parser.add_argument("--K", default=10, type=int)
+        self.parser.add_argument("--split_idx", default=0, type=int)
 
         # training condition
         self.parser.add_argument("--epochs", default=1, type=int)
-        self.parser.add_argument("--lr", default=0.01, type=float)
+        self.parser.add_argument("--lr", default=0.1, type=float)
         self.parser.add_argument("--batch_size", default=16, type=int)
         self.parser.add_argument("--workers", default=1, type=int)
         self.parser.add_argument("--pin_memory", action="store_true")
 
         # other condition
         self.parser.add_argument("--pass_train", action="store_true")
-        self.parser.add_argument("--gpu", default=0, type=int)
-        self.parser.add_argument("--cpu", default=4, type=int)
+        self.parser.add_argument("--gpu", default=0, type=float)
+        self.parser.add_argument("--cpu", default=4, type=float)
         self.parser.add_argument("--aws", action="store_true")
+        self.parser.add_argument("--my_home", action="store_true")
         self.parser.add_argument("--baseline", action="store_true")
         self.parser.add_argument("--cutout", default=0, type=float)
         self.parser.add_argument("--aug", default="default")

@@ -79,7 +79,11 @@ class JsonLogger(Logger):
 
     def on_result(self, result):
         # print("logger result", result.keys(), result["config"].keys())
-        result["config"].pop("dataloader")
+        try:
+            result["config"].pop("dataloader")
+            result["config"].pop("model")
+        except:
+            pass
         # print("logger result", result.keys(), result["config"].keys())
         json.dump(result, self, cls=_SafeFallbackEncoder)
         self.write("\n")

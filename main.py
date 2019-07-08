@@ -28,30 +28,44 @@ def main():
     args = opts().parse()
     train_sampler, train_loader, val_loader, test_loader = get_dataloaders(
         dataset='reduced_cifar10', batch=args.batch_size, dataroot="../../data/cifar10",
-        split=0.2, split_idx=0, horovod=False
+        split=0.2, split_idx=args.split_idx, horovod=False
     )
 
+    model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
     if not args.pass_train:
-        model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
         train(model, train_loader, val_loader, args)
-        del model
+    else:
+        cp = torch.load("/home/kento/Develope/my_products/fast-autoaugment/checkpoint/ckpt.pth.tar")
+        model.load_state_dict(cp["state_dict"])
+        del cp
     del train_sampler, train_loader, test_loader
+    model = model.to(torch.device("cpu"))
 
+    augs_hist = []
     for b in range(args.B):
 
-        print(f"\n\n########### START SEARCHING : B{b} ############\n\n")
+        print(f"\n\n########### START SEARCHING : B{b} (split {args.split_idx}) ############\n\n")
 
         ray.init()
 
-        aug1, aug2 = get_candidate_augment(T=args.T)
+        augs = get_candidate_augment(T=args.T)
+        while augs in augs_hist:
+            augs = get_candidate_augment(T=args.T)
+        augs_hist.append(augs)
 
+        # space = {
+        #     "p1": hp.uniform("p1", 0, 1),
+        #     "p2": hp.uniform("p2", 0, 1),
+        #     "value1": hp.uniform("value1", 0, 1),
+        #     "value2": hp.uniform("value2", 0, 1),
+        # }
 
-        space = {
-            "p1": hp.uniform("p1", 0, 1),
-            "p2": hp.uniform("p2", 0, 1),
-            "value1": hp.uniform("value1", 0, 1),
-            "value2": hp.uniform("value2", 0, 1),
-        }
+        # space = {
+        #     "p1": hp.choice([i/10 for i in range(11)]),
+        #     "p2": hp.choice([i / 10 for i in range(11)]),
+        #     "value1": hp.choice([i / 10 for i in range(1, 11)]),
+        #     "value2": hp.choice([i / 10 for i in range(1, 11)])
+        # }
 
         config = {
             "resources_per_trial": {
@@ -61,15 +75,22 @@ def main():
             "num_samples": args.num_samples,
             "config": {
                 "args": args,
+                "model": model, #.to(torch.device("cpu")),
                 "dataloader": val_loader,
-                "aug1": aug1[0].__name__,
-                "aug2": aug2[0].__name__,
+                # "aug1": aug1[0].__name__,
+                # "aug2": aug2[0].__name__,
                 "iteration": 1,
             },
             "stop": {
                 "training_iteration": 1
             }
         }
+
+        space = {}
+        for i in range(1, args.T + 1):
+            space[f"p{i}"] = hp.choice(f"p{i}", [i / 10 for i in range(11)])
+            space[f"value{i}"] = hp.choice(f"value{i}", [i / 10 for i in range(1, 11)])
+            config["config"][f"aug{i}"] = augs[i-1][0].__name__
 
         algo = HyperOptSearch(
             space,
@@ -92,15 +113,16 @@ def main():
 def train(model, train_loader, val_loader, args):
     best_acc = -1
     criterion = nn.CrossEntropyLoss().to(args.device)
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=2e-4, nesterov=True)
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
     for epoch in range(args.epochs):
+        adjust_learning_rate(optimizer, epoch, args)
         loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
         loss, acc = validate(model, val_loader, criterion, args)
         print(f"Epoch[{epoch}/{args.epochs}]\t"
-              f"Train Loss: {loss_t:.4f}\tAccuracy: {acc_t:.2f}\n"
-              f"\t\t  Val Loss: {loss:.4f}\tAccuracy: {acc:.2f}")
+              f"Train Loss: {loss_t:.4f}({len(train_loader)})\tAccuracy: {acc_t:.2f}\n"
+              f"\t\t  Val Loss: {loss:.4f}({len(val_loader)})\tAccuracy: {acc:.2f}")
         if acc > best_acc:
-            print('Saving..')
+            print(f'Saving.. {acc:.4f}')
             state = {
                 'state_dict': model.state_dict(),
                 'acc': acc,
@@ -111,9 +133,8 @@ def train(model, train_loader, val_loader, args):
             torch.save(state, './checkpoint/ckpt.pth.tar')
             best_acc = acc
     with open("./checkpoint/acc.txt", "a") as f:
-        f.write(f"Best Accuracy: {best_acc:.2f}")
+        f.write(f"Best Accuracy: {best_acc:.2f} (split {args.split_idx})")
         f.write("\n")
-    return model
 
 
 def train_epoch(model, train_loader, criterion, optimizer, args):
@@ -140,6 +161,7 @@ def train_epoch(model, train_loader, criterion, optimizer, args):
 
     return train_loss/(i+1), 100.*correct/total
 
+
 def validate(model, val_loader, criterion, args):
     val_loss = 0
     correct = 0
@@ -158,6 +180,20 @@ def validate(model, val_loader, criterion, args):
             correct += predicted.eq(targets).sum().item()
 
     return val_loss/(i+1), 100.*correct/total
+
+
+def adjust_learning_rate(optimizer, epoch, args):
+    lr = args.lr
+    if epoch > 80:
+        lr = 0.01
+    elif epoch > 80:
+        lr = 0.01
+    else:
+        lr = 0.1
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
 
 if __name__=="__main__":
     main()

@@ -2,6 +2,8 @@ torch
 torchvision
 hyperopt
 sklearn
+tensorflow-gpu
+pandas
 ray[debug]
 git+https://github.com/wbaek/theconf.git
 

@@ -21,7 +21,7 @@ def main():
     args = opts().parse()
     train_sampler, train_loader, val_loader, test_loader = get_dataloaders(
         dataset='cifar10', batch=args.batch_size, dataroot="../../data/cifar10",
-        aug=args.aug, cutout=args.cutout
+        aug=args.aug, cutout=args.cutout, K=args.K
     )
     # transform_train = transforms.Compose([
     #     transforms.RandomCrop(32, padding=4),

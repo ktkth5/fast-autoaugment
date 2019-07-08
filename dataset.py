@@ -33,7 +33,7 @@ _IMAGENET_PCA = {
 }
 
 
-def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=False, aug="default", cutout=0):
+def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=False, aug="default", cutout=0, K=10):
     if 'cifar' in dataset:
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
@@ -108,11 +108,17 @@ def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=Fa
 
     # if test is not None:
     if aug == "reduced_cifar_repro":
-        transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_repro()))
+        transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_repro(K=K)))
+        print(fa_reduced_cifar_repro(K=K))
     elif aug == "reduced_cifar_archive":
         transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_archive()))
+        print(fa_reduced_cifar_archive())
     elif aug == "reduced_cifar_random":
         transform_train.transforms.insert(0, Augmentation(random_policy()))
+        print(random_policy())
+    elif aug == "autoaug_paper_cifar10":
+        transform_train.transforms.insert(0, Augmentation(autoaug_paper_cifar10()))
+        print(autoaug_paper_cifar10())
     elif aug == "default":
         pass
 
