@@ -8,7 +8,6 @@ import torchvision
 from torch.utils.data import SubsetRandomSampler, Sampler, Subset
 from torchvision.transforms import transforms
 from sklearn.model_selection import StratifiedShuffleSplit
-from theconf import Config as C
 
 from lib.augmentations import *
 from lib.common import get_logger
