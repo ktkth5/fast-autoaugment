@@ -34,13 +34,15 @@ def train(model, train_loader, val_loader, args):
     file_name = f"checkpoint/trian_{args.log}_cp.pth.tar"
     best_name = f"checkpoint/train_{args.log}_bt.pth.tar"
     log_name = f"checkpoint/log_{args.log}.txt"
-    best_acc = -1
+    best_acc, best_epoch = -1, -1
     criterion = nn.CrossEntropyLoss().to(args.device)
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs, args.lr/(5**3))
     for epoch in range(args.epochs):
-        adjust_learning_rate(optimizer, epoch, args)
+        # adjust_learning_rate(optimizer, epoch, args)
         loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
         loss, acc = validate(model, val_loader, criterion, args)
+        scheduler.step()
 
         log = f"Epoch[{epoch}/{args.epochs}]\t" \
               f"Train Loss: {loss_t:.4f}\tAccuracy: {acc_t:.2f}\tLR: {optimizer.param_groups[0]['lr']:.6f}\n" \
@@ -50,6 +52,7 @@ def train(model, train_loader, val_loader, args):
             f.write(log)
             f.write("\n")
         is_best = acc > best_acc
+        best_epoch = epoch if is_best else best_epoch
         best_acc = max(acc, best_acc)
         state = {
             'state_dict': model.state_dict(),
@@ -64,6 +67,7 @@ def train(model, train_loader, val_loader, args):
     log = f"=======================================\n" \
           f"          FINISHED TRAINING\n" \
           f"         BEST SCORE: {best_acc:.4f}\n" \
+          f"            EPOCH  : {best_epoch}\n" \
           f"======================================="
     print(log)
     with open(log_name, "a") as f:

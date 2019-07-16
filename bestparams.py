@@ -15,7 +15,7 @@ args = parser.parse_args()
 assert os.path.exists(args.exp_dir)
 
 
-for split_idx in range(4):
+for split_idx in range(5):
 
     _log_dirs = glob.glob(f"{args.exp_dir}/**/result.json")
     log_dirs = []

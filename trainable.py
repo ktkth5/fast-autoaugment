@@ -37,17 +37,18 @@ class TrainCIFAR(Trainable):
         correct = 0
         self.model.eval()
         with torch.no_grad():
-            for i, (inputs, targets) in enumerate(self.val_loader):
-                inputs = inputs.to(self.args.device)
-                targets = targets.to(self.args.device)
-                outputs = self.model(inputs)
-                loss = self.criterion(outputs, targets)
+            for _ in range(2):
+                for i, (inputs, targets) in enumerate(self.val_loader):
+                    inputs = inputs.to(self.args.device)
+                    targets = targets.to(self.args.device)
+                    outputs = self.model(inputs)
+                    loss = self.criterion(outputs, targets)
 
-                val_loss += loss.item()
-                _, predicted = outputs.max(1)
-                total += targets.size(0)
-                correct += predicted.eq(targets).sum().item()
-        return {"mean_accuracy": 100.*correct/total, "mean_loss": val_loss/(i+1)}
+                    val_loss += loss.item()
+                    _, predicted = outputs.max(1)
+                    total += targets.size(0)
+                    correct += predicted.eq(targets).sum().item()
+        return {"mean_accuracy": 100.*correct/total, "mean_loss": val_loss/(i+1)/2}
 
     def _save(self, checkpoint_dir):
         return

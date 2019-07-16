@@ -7,12 +7,12 @@ class opts(object):
 
         # main condition
         self.parser.add_argument("--B", default=200, type=int, help="search depth")
-        self.parser.add_argument("--T", default=2, type=int)
-        self.parser.add_argument("--num_samples", default=3, type=int)
-        self.parser.add_argument("--max_concurrent", default=4, type=int)
-        self.parser.add_argument("--verbose", default=0, type=int)
-        self.parser.add_argument("--K", default=10, type=int)
-        self.parser.add_argument("--split_idx", default=0, type=int)
+        self.parser.add_argument("--T", default=2, type=int, help="length of sub policy")
+        self.parser.add_argument("--num_samples", default=3, type=int, help="sampling number in hyperopt")
+        self.parser.add_argument("--max_concurrent", default=4, type=int, help="max trials in concurrent")
+        self.parser.add_argument("--verbose", default=0, type=int, help="verbose")
+        self.parser.add_argument("--K", default=10, type=int, help="Top k best policy")
+        self.parser.add_argument("--split_idx", default=0, type=int, help="index of kfold")
 
         # training condition
         self.parser.add_argument("--epochs", default=1, type=int)
