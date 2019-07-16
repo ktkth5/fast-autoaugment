@@ -12,9 +12,7 @@ import torch.backends.cudnn as cudnn
 
 from opts import opts
 from models import wideresnet
-from trainable import TrainCIFAR
-from dataset import get_dataloaders, Augmentation
-from lib.augmentations import fa_reduced_cifar_repro
+from dataset import get_dataloaders
 
 
 def main():
@@ -23,33 +21,7 @@ def main():
         dataset='cifar10', batch=args.batch_size, dataroot="../../data/cifar10",
         aug=args.aug, cutout=args.cutout, K=args.K
     )
-    # transform_train = transforms.Compose([
-    #     transforms.RandomCrop(32, padding=4),
-    #     transforms.RandomHorizontalFlip(),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    # ])
-    # transform_test = transforms.Compose([
-    #     transforms.ToTensor(),
-    #     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    # ])
-    # if not args.baseline:
-    #     transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar_repro()))
-    #
-    # train_loader = torch.utils.data.DataLoader(
-    #     torchvision.datasets.CIFAR10(
-    #         root="../../data/cifar10", train=True, download=True,
-    #         transform=transform_train
-    #     ),
-    #     batch_size=args.batch_size,shuffle=True,num_workers=4,pin_memory=True,drop_last=True
-    # )
-    # test_loader = torch.utils.data.DataLoader(
-    #     torchvision.datasets.CIFAR10(
-    #         root="../../data/cifar10", train=False, download=True,
-    #         transform=transform_test
-    #     ),
-    #     batch_size=args.batch_size*2,shuffle=False,num_workers=4,pin_memory=True,drop_last=False
-    # )
+
     if args.gpu > 0:
         cudnn.benchmark = True
 
@@ -160,8 +132,6 @@ def save_checkpoint(state, is_best, filename, best_filename):
 
 
 def adjust_learning_rate(optimizer, epoch, args):
-    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.lr * (0.1 ** (epoch // 30))
     if epoch > 160:
         lr = 0.0008
     elif epoch > 120:

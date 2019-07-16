@@ -10,12 +10,6 @@ from torchvision.transforms import transforms
 from sklearn.model_selection import StratifiedShuffleSplit
 from theconf import Config as C
 
-# from FastAutoAugment.archive import arsaug_policy, autoaug_policy, autoaug_paper_cifar10, random_search2048, \
-#     fa_reduced_imagenet, fa_reduced_cifar10
-# fa_wresnet40x2, fa_wresnet28x10, fa_pyramid_e300, fa_pyramid_c100, fa_wresnet40x2_c100, \
-# fa_resnet50_imagenet_minusloss, fa_wresnet40x2_cifar100, fa_wresnet40x2_cifar100_r5, fa_wresnet40x2_cifar10, \
-# fa_wresnet28x10_cifar100, fa_wresnet28x10_cifar10, fa_pyramid_cifar10, fa_pyramid_cifar100, \
-# fa_resnet50_rimagenet, fa_shake26_2x96d_cifar100, fa_shake26_2x96d_cifar10, fa_reduced_cifar10_progressive
 from lib.augmentations import *
 from lib.common import get_logger
 from lib.samplers import DistributedStratifiedSampler
@@ -23,14 +17,6 @@ from lib.samplers import StratifiedSampler
 
 logger = get_logger('Fast AutoAugment')
 logger.setLevel(logging.INFO)
-_IMAGENET_PCA = {
-    'eigval': torch.Tensor([0.2175, 0.0188, 0.0045]),
-    'eigvec': torch.Tensor([
-        [-0.5675,  0.7192,  0.4009],
-        [-0.5808, -0.0045, -0.8140],
-        [-0.5836, -0.6948,  0.4203],
-    ])
-}
 
 
 def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=False, aug="default", cutout=0, K=10):
@@ -76,32 +62,6 @@ def get_dataloaders(dataset, batch, dataroot, split=0.0, split_idx=0, horovod=Fa
             ])
     else:
         raise ValueError('dataset=%s' % dataset)
-
-    # if isinstance(C.get()['aug'], list):
-    #     logger.debug('augmentation provided.')
-    #     transform_train.transforms.insert(0, Augmentation(C.get()['aug']))
-    # else:
-    #     logger.debug('augmentation: %s' % C.get()['aug'])
-    #     if C.get()['aug'] == 'random2048':
-    #         transform_train.transforms.insert(0, Augmentation(random_search2048()))
-    #     elif C.get()['aug'] == 'fa_reduced_cifar10':
-    #         transform_train.transforms.insert(0, Augmentation(fa_reduced_cifar10()))
-    #     elif C.get()['aug'] == 'fa_reduced_imagenet':
-    #         transform_train.transforms.insert(0, Augmentation(fa_reduced_imagenet()))
-    #
-    #     elif C.get()['aug'] == 'arsaug':
-    #         transform_train.transforms.insert(0, Augmentation(arsaug_policy()))
-    #     elif C.get()['aug'] == 'autoaug_cifar10':
-    #         transform_train.transforms.insert(0, Augmentation(autoaug_paper_cifar10()))
-    #     elif C.get()['aug'] == 'autoaug_extend':
-    #         transform_train.transforms.insert(0, Augmentation(autoaug_policy()))
-    #     elif C.get()['aug'] in ['default', 'inception', 'inception320']:
-    #         pass
-    #     else:
-    #         raise ValueError('not found augmentations. %s' % C.get()['aug'])
-
-    # if C.get()['cutout'] > 0:
-    #     transform_train.transforms.append(CutoutDefault(C.get()['cutout']))
 
     if cutout > 0:
         transform_train.transforms.append(CutoutDefault(cutout))

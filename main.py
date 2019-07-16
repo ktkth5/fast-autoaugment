@@ -53,19 +53,6 @@ def main():
             augs = get_candidate_augment(T=args.T)
         augs_hist.append(augs)
 
-        # space = {
-        #     "p1": hp.uniform("p1", 0, 1),
-        #     "p2": hp.uniform("p2", 0, 1),
-        #     "value1": hp.uniform("value1", 0, 1),
-        #     "value2": hp.uniform("value2", 0, 1),
-        # }
-
-        # space = {
-        #     "p1": hp.choice([i/10 for i in range(11)]),
-        #     "p2": hp.choice([i / 10 for i in range(11)]),
-        #     "value1": hp.choice([i / 10 for i in range(1, 11)]),
-        #     "value2": hp.choice([i / 10 for i in range(1, 11)])
-        # }
 
         config = {
             "resources_per_trial": {
@@ -75,7 +62,7 @@ def main():
             "num_samples": args.num_samples,
             "config": {
                 "args": args,
-                "model": model, #.to(torch.device("cpu")),
+                "model": model,
                 "dataloader": val_loader,
                 # "aug1": aug1[0].__name__,
                 # "aug2": aug2[0].__name__,
@@ -157,7 +144,6 @@ def train_epoch(model, train_loader, criterion, optimizer, args):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
         # print(f"{i}/{len(train_loader)}\t", loss.item(), correct/total)
-        # break
 
     return train_loss/(i+1), 100.*correct/total
 

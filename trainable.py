@@ -10,15 +10,8 @@ import torchvision
 import ray
 from ray import tune
 from ray.tune import Trainable
-from ray.tune.suggest.hyperopt import HyperOptSearch
 
-from hyperopt import hp
-
-from opts import opts
-from models import wideresnet
-from dataset import get_dataloaders
-from lib.common import AverageMeter
-from lib.augmentations import get_candidate_augment, apply_augment
+from lib.augmentations import apply_augment
 
 
 class TrainCIFAR(Trainable):
@@ -30,15 +23,6 @@ class TrainCIFAR(Trainable):
         augs = [[config["aug1"], config["p1"], config["value1"]],
                 [config["aug2"], config["p2"], config["value2"]]]
         self.val_loader.dataset.transform.transforms.insert(0, Augmentation(augs))
-
-        # self.model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
-        # if args.aws:
-        #     cp = torch.load("/home/ubuntu/Develope/fast-autoaugment/checkpoint/ckpt.pth.tar")
-        # elif args.my_home:
-        #     cp = torch.load("/home/kento/Develope/my_products/fast-autoaugment/checkpoint/ckpt.pth.tar")
-        # else:
-        #     cp = torch.load("/Users/kento/Development/my_pc/fast-autoaugment/checkpoint/ckpt.pth.tar")
-        # self.model.load_state_dict(cp["state_dict"])
         self.model = config["model"].to(args.device)
 
         self.criterion = nn.CrossEntropyLoss().to(args.device)
