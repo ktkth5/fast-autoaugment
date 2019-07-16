@@ -37,7 +37,7 @@ class TrainCIFAR(Trainable):
         correct = 0
         self.model.eval()
         with torch.no_grad():
-            for _ in range(2):
+            for _ in range(3):
                 for i, (inputs, targets) in enumerate(self.val_loader):
                     inputs = inputs.to(self.args.device)
                     targets = targets.to(self.args.device)

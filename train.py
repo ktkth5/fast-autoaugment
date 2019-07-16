@@ -37,12 +37,11 @@ def train(model, train_loader, val_loader, args):
     best_acc, best_epoch = -1, -1
     criterion = nn.CrossEntropyLoss().to(args.device)
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs, args.lr/(5**3))
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs, 0)
     for epoch in range(args.epochs):
         # adjust_learning_rate(optimizer, epoch, args)
         loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
         loss, acc = validate(model, val_loader, criterion, args)
-        scheduler.step()
 
         log = f"Epoch[{epoch}/{args.epochs}]\t" \
               f"Train Loss: {loss_t:.4f}\tAccuracy: {acc_t:.2f}\tLR: {optimizer.param_groups[0]['lr']:.6f}\n" \
@@ -60,6 +59,7 @@ def train(model, train_loader, val_loader, args):
             'epoch': epoch,
         }
         save_checkpoint(state, is_best, file_name, best_name)
+        scheduler.step()
     with open(f"./checkpoint/acc_{args.log}.txt", "a") as f:
         f.write(f"Best Accuracy: {best_acc:.2f}")
         f.write("\n")
@@ -146,7 +146,6 @@ def adjust_learning_rate(optimizer, epoch, args):
         lr = 0.1
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
-
 
 
 if __name__=="__main__":
