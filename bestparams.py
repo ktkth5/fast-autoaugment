@@ -60,10 +60,7 @@ for split_idx in range(4):
 
 
     # Print Top K
-
     best_param = sorted(best_params_each_aug, key=lambda x:float(x[2]), reverse=True)
-    # for param in best_param:
-        # print(param)
     log_path = os.path.join(args.log_dir, f"{args.exp_dir.split('/')[-2]}.txt")
 
     with open(log_path, "a") as f:

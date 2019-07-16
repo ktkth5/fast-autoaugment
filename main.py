@@ -64,8 +64,6 @@ def main():
                 "args": args,
                 "model": model,
                 "dataloader": val_loader,
-                # "aug1": aug1[0].__name__,
-                # "aug2": aug2[0].__name__,
                 "iteration": 1,
             },
             "stop": {
@@ -169,7 +167,6 @@ def validate(model, val_loader, criterion, args):
 
 
 def adjust_learning_rate(optimizer, epoch, args):
-    lr = args.lr
     if epoch > 80:
         lr = 0.01
     elif epoch > 80:
