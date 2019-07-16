@@ -97,8 +97,9 @@ def train(model, train_loader, val_loader, args):
     best_acc = -1
     criterion = nn.CrossEntropyLoss().to(args.device)
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs, 0)
     for epoch in range(args.epochs):
-        adjust_learning_rate(optimizer, epoch, args)
+        # adjust_learning_rate(optimizer, epoch, args)
         loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
         loss, acc = validate(model, val_loader, criterion, args)
         print(f"Epoch[{epoch}/{args.epochs}]\t"
@@ -115,6 +116,7 @@ def train(model, train_loader, val_loader, args):
                 os.mkdir('checkpoint')
             torch.save(state, './checkpoint/ckpt.pth.tar')
             best_acc = acc
+        scheduler.step()
     with open("./checkpoint/acc.txt", "a") as f:
         f.write(f"Best Accuracy: {best_acc:.2f} (split {args.split_idx})")
         f.write("\n")
