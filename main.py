@@ -22,7 +22,6 @@ from lib.common import AverageMeter
 from lib.augmentations import get_candidate_augment
 from logger import JsonLogger
 
-
 def main():
 
     args = opts().parse()
@@ -86,7 +85,6 @@ def main():
         tune.run(TrainCIFAR,
                  search_alg=algo,
                  scheduler=scheduler,
-                 # loggers=[DEFAULT_LOGGERS, JsonLogger],
                  loggers=[JsonLogger],
                  verbose=args.verbose,
                  **config)
