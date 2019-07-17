@@ -12,6 +12,7 @@ import torch.backends.cudnn as cudnn
 
 from opts import opts
 from models import wideresnet
+from models.get_model import get_model
 from dataset import get_dataloaders
 
 
@@ -25,7 +26,8 @@ def main():
     if args.gpu > 0:
         cudnn.benchmark = True
 
-    model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
+    # model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
+    model = get_model(args.model).to(args.device)
     _, best_score = train(model, train_loader, test_loader, args)
 
 

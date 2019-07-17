@@ -16,9 +16,9 @@ from hyperopt import hp
 
 from opts import opts
 from models import wideresnet
+from models.get_model import get_model
 from trainable import TrainCIFAR
 from dataset import get_dataloaders
-from lib.common import AverageMeter
 from lib.augmentations import get_candidate_augment
 from logger import JsonLogger
 
@@ -30,7 +30,8 @@ def main():
         split=0.2, split_idx=args.split_idx, horovod=False
     )
 
-    model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
+    # model = wideresnet.Wide_ResNet(40, 2, 0.3, 10).to(args.device)
+    model = get_model(args.model).to(args.device)
     if not args.pass_train:
         train(model, train_loader, val_loader, args)
     else:

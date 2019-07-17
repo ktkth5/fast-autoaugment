@@ -91,6 +91,16 @@ class Wide_ResNet(nn.Module):
 
         return out
 
+
+def wideresnet40_2():
+    return Wide_ResNet(40,2,0.3,10)
+
+
+def wideresnet28_10():
+    return Wide_ResNet(28,10,0.3,10)
+
+
+
 if __name__ == '__main__':
     net=Wide_ResNet(28, 10, 0.3, 10)
     y = net(Variable(torch.randn(1,3,32,32)))

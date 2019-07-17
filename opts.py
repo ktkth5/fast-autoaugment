@@ -13,6 +13,7 @@ class opts(object):
         self.parser.add_argument("--verbose", default=0, type=int, help="verbose")
         self.parser.add_argument("--K", default=10, type=int, help="Top k best policy")
         self.parser.add_argument("--split_idx", default=0, type=int, help="index of kfold")
+        self.parser.add_argument("--model", default="wideresnet40_2", help="model type")
 
         # training condition
         self.parser.add_argument("--epochs", default=1, type=int)
