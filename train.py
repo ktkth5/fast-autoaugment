@@ -15,6 +15,8 @@ from models import wideresnet
 from models.get_model import get_model
 from dataset import get_dataloaders
 
+from warmup_scheduler import GradualWarmupScheduler
+
 
 def main():
     args = opts().parse()
@@ -40,6 +42,13 @@ def train(model, train_loader, val_loader, args):
     criterion = nn.CrossEntropyLoss().to(args.device)
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs, 0)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs - 5, 0)
+    # scheduler = GradualWarmupScheduler(
+    #     optimizer,
+    #     multiplier=4,
+    #     total_epoch=5,
+    #     after_scheduler=scheduler
+    # )
     for epoch in range(args.epochs):
         # adjust_learning_rate(optimizer, epoch, args)
         loss_t, acc_t = train_epoch(model, train_loader, criterion, optimizer, args)
@@ -47,7 +56,7 @@ def train(model, train_loader, val_loader, args):
 
         log = f"Epoch[{epoch}/{args.epochs}]\t" \
               f"Train Loss: {loss_t:.4f}\tAccuracy: {acc_t:.2f}\tLR: {optimizer.param_groups[0]['lr']:.6f}\n" \
-              f"\t\t  Val Loss: {loss:.4f}\tAccuracy: {acc:.2f}\t{time.ctime()}"
+              f"\t\t  Val Loss: {loss:.4f}\tAccuracy: {acc:.2f}\t{time.ctime()}\t{args.log}"
         print(log)
         with open(log_name, "a") as f:
             f.write(log)
